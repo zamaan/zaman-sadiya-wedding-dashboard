@@ -94,30 +94,38 @@ function toggleInvited(i){
 }
 
 function editBudget(i){
-  const x=D.budget[i];
+  const x = D.budget[i];
   if(!x) return;
 
-  let v=window.prompt('Item:',x.i||'');
-  if(v===null) return;
-  x.i=v.trim()||x.i;
+  // Edit Item
+  let value = window.prompt('Item name:', x.i || '');
+  if(value === null) return;
+  if(value.trim() !== '') x.i = value.trim();
 
-  v=window.prompt('Category:',x.c||'');
-  if(v===null) return;
-  x.c=v.trim();
+  // Edit Category
+  value = window.prompt('Category:', x.c || '');
+  if(value === null) return;
+  x.c = value.trim();
 
-  v=window.prompt('Planned amount (₹):',String(x.p||0));
-  if(v===null) return;
-  const planned=Number(v);
-  if(!Number.isNaN(planned)) x.p=planned;
+  // Edit Planned
+  value = window.prompt('Planned amount (₹):', String(x.p ?? 0));
+  if(value === null) return;
+  const planned = parseFloat(value);
+  if(!Number.isNaN(planned)) x.p = planned;
 
-  v=window.prompt('Spent amount (₹):',String(x.s||0));
-  if(v===null) return;
-  const spentAmount=Number(v);
-  if(!Number.isNaN(spentAmount)) x.s=spentAmount;
+  // Edit Spent
+  value = window.prompt('Spent amount (₹):', String(x.s ?? 0));
+  if(value === null) return;
+  const spent = parseFloat(value);
+  if(!Number.isNaN(spent)) x.s = spent;
+
+  // Edit Payment Status
+  value = window.prompt('Payment status (Pending / Partly Paid / Paid):', x.st || 'Pending');
+  if(value === null) return;
+  if(value.trim() !== '') x.st = value.trim();
 
   save();
 }
-
 function addBudget(){
   if(!bi.value.trim()) return;
   D.budget.push({
