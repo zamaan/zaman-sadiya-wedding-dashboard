@@ -98,7 +98,7 @@ guestTable.innerHTML=tbl(['Guest','Adults','Invited',''],D.guests.map((x,i)=>`<t
 let p=D.budget.reduce((a,x)=>a+x.p,0),s=D.budget.reduce((a,x)=>a+x.s,0),cv=p-s;
 plan.textContent='₹'+p.toLocaleString('en-IN');
 spent.textContent='₹'+s.toLocaleString('en-IN');
-currentValue.textContent='₹'+cv.toLocaleString('en-IN');budgetTable.innerHTML=tbl(['Item','Category','Planned','Spent','Status',''],D.budget.map((x,i)=>`<tr><td>${x.i}</td><td>${x.c}</td><td>₹${x.p}</td><td>₹${x.s}</td><td>${x.st}</td><td><button class="secondary" onclick="del('budget',${i})">×</button></td></tr>`));
+currentValue.textContent='₹'+cv.toLocaleString('en-IN');budgetTable.innerHTML=tbl(['Item','Category','Planned','Spent','Status','Actions'],D.budget.map((x,i)=>`<tr><td>${x.i}</td><td>${x.c}</td><td>₹${x.p}</td><td>₹${x.s}</td><td>${x.st}</td><td><button class="secondary" onclick="editBudget(${i})">Edit</button> <button class="secondary" onclick="del('budget',${i})">×</button></td></tr>`));
 vendorTable.innerHTML=tbl(['Category','Vendor','Phone','Amount','Status',''],D.vendors.map((x,i)=>`<tr><td>${x.c}</td><td>${x.n}</td><td>${x.ph}</td><td>₹${x.a}</td><td>${x.s}</td><td><button class="secondary" onclick="del('vendors',${i})">×</button></td></tr>`));
 updatesList.innerHTML=D.updates.length?D.updates.map((x,i)=>`<div class="card" style="margin:10px 0"><b style="font-size:23px;color:#6e2835">${x.t}</b><p>${x.x}</p><small>${x.b} · ${x.date}</small><br><br><button class="secondary" onclick="del('updates',${i})">Delete</button></div>`).join(''):'<div class="card">No family updates yet.</div>'}
 render();cloudLoad();
