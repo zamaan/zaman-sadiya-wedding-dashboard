@@ -86,6 +86,71 @@ function editTask(i){
   save();
 }
 function editGuest(i){let x=D.guests[i];let v=prompt('Guest / Family name',x.n);if(v===null)return;x.n=v.trim()||x.n;v=prompt('Family group',x.g||'');if(v!==null)x.g=v;v=prompt('Invited? (Yes / No)',x.inv||'No');if(v!==null)x.inv=/^y(es)?$/i.test(v)?'Yes':'No';v=prompt('RSVP (Pending / Confirmed / Declined)',x.s||'Pending');if(v!==null)x.s=v||'Pending';v=prompt('Adults',x.a||0);if(v!==null)x.a=+v||0;v=prompt('Children',x.c||0);if(v!==null)x.c=+v||0;save()}
+
+function toggleInvited(i){
+  if(!D.guests[i]) return;
+  D.guests[i].inv=(D.guests[i].inv||'No')==='Yes'?'No':'Yes';
+  save();
+}
+
+function editBudget(i){
+  const x=D.budget[i];
+  if(!x) return;
+
+  let v=window.prompt('Item:',x.i||'');
+  if(v===null) return;
+  x.i=v.trim()||x.i;
+
+  v=window.prompt('Category:',x.c||'');
+  if(v===null) return;
+  x.c=v.trim();
+
+  v=window.prompt('Planned amount (₹):',String(x.p||0));
+  if(v===null) return;
+  const planned=Number(v);
+  if(!Number.isNaN(planned)) x.p=planned;
+
+  v=window.prompt('Spent amount (₹):',String(x.s||0));
+  if(v===null) return;
+  const spentAmount=Number(v);
+  if(!Number.isNaN(spentAmount)) x.s=spentAmount;
+
+  save();
+}
+
+function addBudget(){
+  if(!bi.value.trim()) return;
+  D.budget.push({
+    i:bi.value,
+    c:bc.value,
+    p:Number(bp.value)||0,
+    s:Number(bs.value)||0,
+    st:bst.value
+  });
+  bi.value='';bc.value='';bp.value='';bs.value='';
+  save();
+}
+
+function addVendor(){
+  if(!vn.value.trim()) return;
+  D.vendors.push({c:vc.value,n:vn.value,ph:vph.value,a:Number(va.value)||0,s:vs.value});
+  vn.value='';vc.value='';vph.value='';va.value='';
+  save();
+}
+
+function addUpdate(){
+  if(!ut.value&&!ux.value) return;
+  D.updates.unshift({t:ut.value||'Family Update',b:ub.value||'Family',x:ux.value,date:new Date().toLocaleString()});
+  ut.value='';ux.value='';
+  save();
+}
+
+function del(k,i){
+  if(!D[k] || !D[k][i]) return;
+  D[k].splice(i,1);
+  save();
+}
+
 function tbl(h,r){return '<table><thead><tr>'+h.map(x=>'<th>'+x+'</th>').join('')+'</tr></thead><tbody>'+r.join('')+'</tbody></table>'}
 function render(){d1.textContent=days('2026-10-24');d2.textContent=days('2026-10-25');pending.textContent=D.tasks.filter(x=>x.s!=='Done').length;confirmed.textContent=D.guests.filter(x=>x.s==='Confirmed').length;let doneN=D.tasks.filter(x=>x.s==='Done').length,pct=D.tasks.length?Math.round(doneN/D.tasks.length*100):0;progress.style.width=pct+'%';progressText.textContent=D.tasks.length?`${doneN} of ${D.tasks.length} tasks completed (${pct}%)`:'Add tasks to begin tracking progress.';
 taskTable.innerHTML=tbl(['Task','Responsible','Event','Due','Priority','Finished','Remark','Actions'],D.tasks.map((x,i)=>`<tr>
