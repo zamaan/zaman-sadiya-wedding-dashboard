@@ -97,32 +97,28 @@ function editBudget(i){
   const x = D.budget[i];
   if(!x) return;
 
-  // Edit Item
-  let value = window.prompt('Item name:', x.i || '');
-  if(value === null) return;
-  if(value.trim() !== '') x.i = value.trim();
+  // Each field can be changed. Cancelling one field keeps its old value
+  // and continues to the next field.
+  let value = window.prompt('Edit Item:', x.i || '');
+  if(value !== null && value.trim() !== '') x.i = value.trim();
 
-  // Edit Category
-  value = window.prompt('Category:', x.c || '');
-  if(value === null) return;
-  x.c = value.trim();
+  value = window.prompt('Edit Category:', x.c || '');
+  if(value !== null) x.c = value.trim();
 
-  // Edit Planned
-  value = window.prompt('Planned amount (₹):', String(x.p ?? 0));
-  if(value === null) return;
-  const planned = parseFloat(value);
-  if(!Number.isNaN(planned)) x.p = planned;
+  value = window.prompt('Edit Planned Amount (₹):', String(x.p || 0));
+  if(value !== null && value.trim() !== ''){
+    const n = Number(value);
+    if(!Number.isNaN(n)) x.p = n;
+  }
 
-  // Edit Spent
-  value = window.prompt('Spent amount (₹):', String(x.s ?? 0));
-  if(value === null) return;
-  const spent = parseFloat(value);
-  if(!Number.isNaN(spent)) x.s = spent;
+  value = window.prompt('Edit Spent Amount (₹):', String(x.s || 0));
+  if(value !== null && value.trim() !== ''){
+    const n = Number(value);
+    if(!Number.isNaN(n)) x.s = n;
+  }
 
-  // Edit Payment Status
-  value = window.prompt('Payment status (Pending / Partly Paid / Paid):', x.st || 'Pending');
-  if(value === null) return;
-  if(value.trim() !== '') x.st = value.trim();
+  value = window.prompt('Edit Payment Status:', x.st || 'Pending');
+  if(value !== null && value.trim() !== '') x.st = value.trim();
 
   save();
 }
@@ -171,17 +167,20 @@ guestTable.innerHTML=tbl(['Guest','Adults','Invited',''],D.guests.map((x,i)=>`<t
 let p=D.budget.reduce((a,x)=>a+x.p,0),s=D.budget.reduce((a,x)=>a+x.s,0),cv=p-s;
 plan.textContent='₹'+p.toLocaleString('en-IN');
 spent.textContent='₹'+s.toLocaleString('en-IN');
-currentValue.textContent='₹'+cv.toLocaleString('en-IN');budgetTable.innerHTML=tbl(['Item','Category','Planned','Spent','Status','Actions'],
-D.budget.map(function(x,i){
-  return `<tr>
+currentValue.textContent='₹'+cv.toLocaleString('en-IN');budgetTable.innerHTML=tbl(
+  ['Item','Category','Planned','Spent','Status','Actions'],
+  D.budget.map((x,i)=>`<tr>
     <td>${x.i||''}</td>
     <td>${x.c||''}</td>
     <td>₹${x.p||0}</td>
     <td>₹${x.s||0}</td>
     <td>${x.st||''}</td>
-    <td><button type="button" class="secondary" onclick="editBudget(${i})">Edit</button> <button type="button" class="secondary" onclick="del('budget',${i})">×</button></td>
-  </tr>`;
-}));
+    <td>
+      <button type="button" class="secondary" onclick="editBudget(${i})">Edit</button>
+      <button type="button" class="secondary" onclick="del('budget',${i})">×</button>
+    </td>
+  </tr>`)
+);
 vendorTable.innerHTML=tbl(['Category','Vendor','Phone','Amount','Status',''],D.vendors.map((x,i)=>`<tr><td>${x.c}</td><td>${x.n}</td><td>${x.ph}</td><td>₹${x.a}</td><td>${x.s}</td><td><button class="secondary" onclick="del('vendors',${i})">×</button></td></tr>`));
 updatesList.innerHTML=D.updates.length?D.updates.map((x,i)=>`<div class="card" style="margin:10px 0"><b style="font-size:23px;color:#6e2835">${x.t}</b><p>${x.x}</p><small>${x.b} · ${x.date}</small><br><br><button class="secondary" onclick="del('updates',${i})">Delete</button></div>`).join(''):'<div class="card">No family updates yet.</div>'}
 render();cloudLoad();
