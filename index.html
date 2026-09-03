@@ -49,6 +49,15 @@ function save(){localStorage.setItem(K,JSON.stringify(D));cloudSave();render()}f
 document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));$(b.dataset.p).classList.add('active')});
 function addTask(){if(!tn.value.trim())return;D.tasks.push({n:tn.value,o:to.value,e:te.value,d:td.value,p:tpri.value,s:tfin.value==='Yes'?'Done':'Not Started',f:tfin.value,r:tr.value});tn.value='';to.value='';td.value='';tr.value='';tfin.value='No';save()}function addGuest(){if(!gn.value.trim())return;D.guests.push({n:gn.value,a:ga.value||0,inv:'No'});gn.value='';ga.value='';save()}
 function done(i){let x=D.tasks[i];x.s=x.s==='Done'?'Not Started':'Done';x.f=x.s==='Done'?'Yes':'No';save()}
+function addRemark(i){
+  if(!D.tasks[i]) return;
+  const current = D.tasks[i].r || '';
+  const remark = window.prompt('Add or edit remark:', current);
+  if(remark !== null){
+    D.tasks[i].r = remark.trim();
+    save();
+  }
+}
 function editTask(i){let x=D.tasks[i];let v=prompt('Task',x.n);if(v===null)return;x.n=v.trim()||x.n;v=prompt('Responsible person',x.o||'');if(v!==null)x.o=v;v=prompt('Event (General / Haldi / Nikah / Valima)',x.e||'General');if(v!==null)x.e=v||'General';v=prompt('Due date (YYYY-MM-DD)',x.d||'');if(v!==null)x.d=v;v=prompt('Priority (High / Medium / Low)',x.p||'Medium');if(v!==null)x.p=v||'Medium';v=prompt('Finished? (Yes / No)',x.f||(x.s==='Done'?'Yes':'No'));if(v!==null){x.f=/^y(es)?$/i.test(v)?'Yes':'No';x.s=x.f==='Yes'?'Done':'Not Started'}v=prompt('Remark / notes',x.r||'');if(v!==null)x.r=v;save()}
 function toggleInvited(i){
   const x=D.guests[i];
@@ -58,7 +67,12 @@ function toggleInvited(i){
 function editGuest(i){let x=D.guests[i];let v=prompt('Guest / Family name',x.n);if(v===null)return;x.n=v.trim()||x.n;v=prompt('Family group',x.g||'');if(v!==null)x.g=v;v=prompt('Invited? (Yes / No)',x.inv||'No');if(v!==null)x.inv=/^y(es)?$/i.test(v)?'Yes':'No';v=prompt('RSVP (Pending / Confirmed / Declined)',x.s||'Pending');if(v!==null)x.s=v||'Pending';v=prompt('Adults',x.a||0);if(v!==null)x.a=+v||0;v=prompt('Children',x.c||0);if(v!==null)x.c=+v||0;save()}
 function tbl(h,r){return '<table><thead><tr>'+h.map(x=>'<th>'+x+'</th>').join('')+'</tr></thead><tbody>'+r.join('')+'</tbody></table>'}
 function render(){d1.textContent=days('2026-10-24');d2.textContent=days('2026-10-25');pending.textContent=D.tasks.filter(x=>x.s!=='Done').length;confirmed.textContent=D.guests.filter(x=>x.s==='Confirmed').length;let doneN=D.tasks.filter(x=>x.s==='Done').length,pct=D.tasks.length?Math.round(doneN/D.tasks.length*100):0;progress.style.width=pct+'%';progressText.textContent=D.tasks.length?`${doneN} of ${D.tasks.length} tasks completed (${pct}%)`:'Add tasks to begin tracking progress.';
-taskTable.innerHTML=tbl(['Task','Responsible','Event','Due','Priority','Finished','Remark',''],D.tasks.map((x,i)=>`<tr><td>${x.n}</td><td>${x.o||'—'}</td><td>${x.e}</td><td>${x.d||'—'}</td><td>${x.p}</td><td>${x.s==='Done'?'Yes':'No'}</td><td>${x.r||'—'}</td><td><button class="secondary" onclick="done(${i})">${x.s==='Done'?'Undo':'Finished'}</button> <button class="secondary" onclick="addRemark(${i})">${x.r?'Edit Remark':'Add Remark'}</button> <button class="secondary" onclick="editTask(${i})">Edit</button> <button class="secondary" onclick="del('tasks',${i})">×</button></td></tr>`));
+taskTable.innerHTML=tbl(['Task','Responsible','Event','Due','Priority','Finished','Remark','Actions'],D.tasks.map((x,i)=>`<tr>
+<td>${x.n}</td><td>${x.o||'—'}</td><td>${x.e||'—'}</td><td>${x.d||'—'}</td><td>${x.p||'—'}</td>
+<td><button class="secondary" onclick="done(${i})">${x.s==='Done'?'Yes':'No'}</button></td>
+<td>${x.r||'—'}</td>
+<td><button class="secondary" onclick="addRemark(${i})">${x.r?'Edit Remark':'Add Remark'}</button> <button class="secondary" onclick="editTask(${i})">Edit Task</button> <button class="secondary" onclick="del('tasks',${i})">×</button></td>
+</tr>`));
 guestTable.innerHTML=tbl(['Guest','Adults','Invited',''],D.guests.map((x,i)=>`<tr><td>${x.n}</td><td>${x.a||0}</td><td><button class="secondary" onclick="toggleInvited(${i})">${x.inv||'No'}</button></td><td><button class="secondary" onclick="editGuest(${i})">Edit</button> <button class="secondary" onclick="del('guests',${i})">×</button></td></tr>`));
 let p=D.budget.reduce((a,x)=>a+x.p,0),s=D.budget.reduce((a,x)=>a+x.s,0);plan.textContent='₹'+p.toLocaleString('en-IN');spent.textContent='₹'+s.toLocaleString('en-IN');budgetTable.innerHTML=tbl(['Item','Category','Planned','Spent','Status',''],D.budget.map((x,i)=>`<tr><td>${x.i}</td><td>${x.c}</td><td>₹${x.p}</td><td>₹${x.s}</td><td>${x.st}</td><td><button class="secondary" onclick="del('budget',${i})">×</button></td></tr>`));
 vendorTable.innerHTML=tbl(['Category','Vendor','Phone','Amount','Status',''],D.vendors.map((x,i)=>`<tr><td>${x.c}</td><td>${x.n}</td><td>${x.ph}</td><td>₹${x.a}</td><td>${x.s}</td><td><button class="secondary" onclick="del('vendors',${i})">×</button></td></tr>`));
