@@ -37,15 +37,15 @@ main{max-width:1140px;margin:auto;padding:32px 18px 80px}.page{display:none}.pag
 
 <section id="updates" class="page"><div class="bar-title"><h2>Family Updates</h2><button class="primary" onclick="toggle('updateForm')">+ Post Update</button></div><div id="updateForm" class="form hidden"><input id="ut" placeholder="Update title"><input id="ub" placeholder="Posted by"><textarea id="ux" placeholder="Important message for family"></textarea><button class="primary" onclick="addUpdate()">Post Update</button></div><div id="updatesList"></div></section>
 
-<div id="budgetEditModal" class="modal">
+<div id="budgetEditModalV2" class="modal">
   <div class="modal-box">
     <h3>Edit Budget</h3>
     <div class="modal-grid">
-      <div><label>Item</label><input id="ebi" placeholder="Item"></div>
-      <div><label>Category</label><input id="ebc" placeholder="Category"></div>
-      <div><label>Planned Amount ₹</label><input id="ebp" type="number" placeholder="Planned"></div>
-      <div><label>Spent Amount ₹</label><input id="ebs" type="number" placeholder="Spent"></div>
-      <div><label>Status</label><select id="ebst"><option>Pending</option><option>Partly Paid</option><option>Paid</option></select></div>
+      <div><label>Item</label><input id="budgetEditItem" placeholder="Item"></div>
+      <div><label>Category</label><input id="budgetEditCategory" placeholder="Category"></div>
+      <div><label>Planned Amount ₹</label><input id="budgetEditPlanned" type="number" placeholder="Planned"></div>
+      <div><label>Spent Amount ₹</label><input id="budgetEditSpent" type="number" placeholder="Spent"></div>
+      <div><label>Status</label><select id="budgetEditStatus"><option>Pending</option><option>Partly Paid</option><option>Paid</option></select></div>
     </div>
     <div class="modal-actions">
       <button class="secondary" type="button" onclick="closeBudgetEdit()">Cancel</button>
@@ -122,32 +122,44 @@ let editingBudgetIndex=null;
 function editBudget(i){
   const x=D.budget[i];
   if(!x) return;
+
   editingBudgetIndex=i;
-  ebi.value=x.i||'';
-  ebc.value=x.c||'';
-  ebp.value=x.p||0;
-  ebs.value=x.s||0;
-  ebst.value=x.st||'Pending';
-  $('budgetEditModal').classList.add('show');
+
+  document.getElementById('budgetEditItem').value=x.i||'';
+  document.getElementById('budgetEditCategory').value=x.c||'';
+  document.getElementById('budgetEditPlanned').value=x.p||0;
+  document.getElementById('budgetEditSpent').value=x.s||0;
+  document.getElementById('budgetEditStatus').value=x.st||'Pending';
+
+  document.getElementById('budgetEditModalV2').classList.add('show');
 }
 
 function closeBudgetEdit(){
+  document.getElementById('budgetEditModalV2').classList.remove('show');
   editingBudgetIndex=null;
-  $('budgetEditModal').classList.remove('show');
 }
 
 function saveBudgetEdit(){
-  if(editingBudgetIndex===null || !D.budget[editingBudgetIndex]) return;
+  if(editingBudgetIndex===null) return;
+
   const x=D.budget[editingBudgetIndex];
-  if(!ebi.value.trim()) return alert('Please enter an item name.');
-  x.i=ebi.value.trim();
-  x.c=ebc.value.trim();
-  x.p=Number(ebp.value)||0;
-  x.s=Number(ebs.value)||0;
-  x.st=ebst.value;
+  const item=document.getElementById('budgetEditItem').value.trim();
+
+  if(!item){
+    alert('Please enter an Item name.');
+    return;
+  }
+
+  x.i=item;
+  x.c=document.getElementById('budgetEditCategory').value.trim();
+  x.p=Number(document.getElementById('budgetEditPlanned').value)||0;
+  x.s=Number(document.getElementById('budgetEditSpent').value)||0;
+  x.st=document.getElementById('budgetEditStatus').value;
+
   closeBudgetEdit();
   save();
 }
+
 function addBudget(){
   if(!bi.value.trim()) return;
   D.budget.push({
