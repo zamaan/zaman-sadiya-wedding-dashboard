@@ -54,6 +54,21 @@ main{max-width:1140px;margin:auto;padding:32px 18px 80px}.page{display:none}.pag
   </div>
 </div>
 
+
+<div id="taskEditModal" class="modal"><div class="modal-box"><h3>Edit Task</h3><div class="modal-grid">
+<div><label>Task Name</label><input id="taskEditName"></div><div><label>Responsible Person</label><input id="taskEditResponsible"></div>
+<div><label>Event</label><select id="taskEditEvent"><option>General</option><option>Haldi</option><option>Nikah</option><option>Valima</option></select></div>
+<div><label>Due Date</label><input id="taskEditDue" type="date"></div>
+<div><label>Priority</label><select id="taskEditPriority"><option>High</option><option>Medium</option><option>Low</option></select></div>
+<div><label>Finished</label><select id="taskEditFinished"><option value="Not Started">No</option><option value="Done">Yes</option></select></div>
+<div style="grid-column:1/-1"><label>Remark / Notes</label><textarea id="taskEditRemark"></textarea></div>
+</div><div class="modal-actions"><button class="secondary" type="button" onclick="closeTaskEdit()">Cancel</button><button class="primary" type="button" onclick="saveTaskEdit()">Save Changes</button></div></div></div>
+
+<div id="guestEditModal" class="modal"><div class="modal-box"><h3>Edit Guest</h3><div class="modal-grid">
+<div><label>Guest Name</label><input id="guestEditName"></div><div><label>Adults</label><input id="guestEditAdults" type="number"></div>
+<div><label>Invited</label><select id="guestEditInvited"><option>Yes</option><option>No</option></select></div>
+</div><div class="modal-actions"><button class="secondary" type="button" onclick="closeGuestEdit()">Cancel</button><button class="primary" type="button" onclick="saveGuestEdit()">Save Changes</button></div></div></div>
+
 </main><footer><div class="orn">✦ ❦ ✦</div><p>Zaman & Sadiya · With the blessings of our families</p></footer>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
@@ -193,6 +208,44 @@ function del(k,i){
   save();
 }
 
+
+let editingTaskIndex=null, editingGuestIndex=null;
+
+function editTask(i){
+ const x=D.tasks[i]; if(!x)return; editingTaskIndex=i;
+ document.getElementById('taskEditName').value=x.n||'';
+ document.getElementById('taskEditResponsible').value=x.o||'';
+ document.getElementById('taskEditEvent').value=x.e||'General';
+ document.getElementById('taskEditDue').value=x.d||'';
+ document.getElementById('taskEditPriority').value=x.p||'Medium';
+ document.getElementById('taskEditFinished').value=x.s||'Not Started';
+ document.getElementById('taskEditRemark').value=x.r||'';
+ document.getElementById('taskEditModal').classList.add('show');
+}
+function addRemark(i){editTask(i);}
+function closeTaskEdit(){document.getElementById('taskEditModal').classList.remove('show');editingTaskIndex=null;}
+function saveTaskEdit(){
+ if(editingTaskIndex===null)return; const x=D.tasks[editingTaskIndex];
+ const n=document.getElementById('taskEditName').value.trim(); if(!n){alert('Please enter a task name.');return;}
+ x.n=n;x.o=document.getElementById('taskEditResponsible').value.trim();x.e=document.getElementById('taskEditEvent').value;
+ x.d=document.getElementById('taskEditDue').value;x.p=document.getElementById('taskEditPriority').value;
+ x.s=document.getElementById('taskEditFinished').value;x.r=document.getElementById('taskEditRemark').value.trim();
+ closeTaskEdit();save();
+}
+function editGuest(i){
+ const x=D.guests[i];if(!x)return;editingGuestIndex=i;
+ document.getElementById('guestEditName').value=x.n||'';
+ document.getElementById('guestEditAdults').value=x.a||0;
+ document.getElementById('guestEditInvited').value=x.inv||'No';
+ document.getElementById('guestEditModal').classList.add('show');
+}
+function closeGuestEdit(){document.getElementById('guestEditModal').classList.remove('show');editingGuestIndex=null;}
+function saveGuestEdit(){
+ if(editingGuestIndex===null)return;const x=D.guests[editingGuestIndex];
+ const n=document.getElementById('guestEditName').value.trim();if(!n){alert('Please enter a guest name.');return;}
+ x.n=n;x.a=Number(document.getElementById('guestEditAdults').value)||0;x.inv=document.getElementById('guestEditInvited').value;
+ closeGuestEdit();save();
+}
 function tbl(h,r){return '<table><thead><tr>'+h.map(x=>'<th>'+x+'</th>').join('')+'</tr></thead><tbody>'+r.join('')+'</tbody></table>'}
 function render(){d1.textContent=days('2026-10-24');d2.textContent=days('2026-10-25');pending.textContent=D.tasks.filter(x=>x.s!=='Done').length;confirmed.textContent=D.guests.filter(x=>x.s==='Confirmed').length;let doneN=D.tasks.filter(x=>x.s==='Done').length,pct=D.tasks.length?Math.round(doneN/D.tasks.length*100):0;progress.style.width=pct+'%';progressText.textContent=D.tasks.length?`${doneN} of ${D.tasks.length} tasks completed (${pct}%)`:'Add tasks to begin tracking progress.';
 taskTable.innerHTML=tbl(['Task','Responsible','Event','Due','Priority','Finished','Remark','Actions'],D.tasks.map((x,i)=>`<tr>
