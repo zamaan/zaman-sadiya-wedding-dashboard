@@ -5,6 +5,12 @@
 header{text-align:center;padding:32px 15px 24px;background:#fffaf4;border-bottom:1px solid var(--line)}.orn{color:var(--gold);letter-spacing:10px}.small{font-size:13px;letter-spacing:4px;text-transform:uppercase;color:#9b7b55}.names{font:500 38px 'Playfair Display';color:var(--wine);margin:8px}.sub{margin:4px;color:#80685b}
 nav{position:sticky;top:0;z-index:9;background:var(--wine);display:flex;justify-content:center;gap:6px;padding:9px;overflow:auto}nav button{white-space:nowrap;background:transparent;border:1px solid #ffffff33;color:#fff;padding:9px 15px;font:17px 'Cormorant Garamond';cursor:pointer}nav button.active{background:var(--gold);color:#38242a}
 main{max-width:1140px;margin:auto;padding:32px 18px 80px}.page{display:none}.page.active{display:block}.heading{text-align:center;margin:5px 0 28px}.heading h2{font:500 38px 'Playfair Display';color:var(--wine);margin:8px}.heading p{color:#80685b;margin:0}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}.events{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.card{background:#fffdf9e8;border:1px solid var(--line);padding:21px;box-shadow:0 10px 28px #5c33200b}.card:before{content:"✦";color:var(--gold);font-size:12px}.metric small{color:#8b7262}.metric b{display:block;font-size:38px;color:var(--wine);margin-top:7px}.event{text-align:center}.event .date{color:var(--gold);letter-spacing:2px;font-size:16px}.event h3{font:500 27px 'Playfair Display';color:var(--wine);margin:9px}.bar-title{display:flex;justify-content:space-between;align-items:center;margin:28px 0 14px}.bar-title h2{font:500 30px 'Playfair Display';color:var(--wine);margin:0}.primary{background:var(--wine);color:white;border:0;padding:10px 18px;font:18px 'Cormorant Garamond';cursor:pointer}.secondary{background:#fffaf4;border:1px solid var(--gold);color:var(--wine);padding:6px 10px;font:16px 'Cormorant Garamond';cursor:pointer}.form{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;background:#fffaf4;border:1px solid var(--line);padding:15px;margin-bottom:15px}input,select,textarea{width:100%;padding:10px;border:1px solid #d8c7b3;background:#fffdf9;font:17px 'Cormorant Garamond'}textarea{min-height:80px}.hidden{display:none}table{width:100%;border-collapse:collapse;background:var(--paper)}th,td{padding:10px;border-bottom:1px solid #eadfd3;text-align:left}th{background:#f5ecdf;color:var(--wine)}.progress{height:8px;background:#eadfd3}.progress div{height:100%;background:linear-gradient(90deg,var(--gold),var(--wine))}footer{text-align:center;padding:40px;color:#80685b;border-top:1px solid var(--line)}
+
+.modal{display:none;position:fixed;inset:0;background:#0008;z-index:100;align-items:center;justify-content:center;padding:18px}
+.modal.show{display:flex}.modal-box{width:min(620px,100%);background:#fffdf9;border:1px solid var(--line);padding:24px;box-shadow:0 20px 60px #0004;position:relative}
+.modal-box h3{font:500 28px 'Playfair Display';color:var(--wine);margin:0 0 16px}.modal-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:18px}
+@media(max-width:600px){.modal-grid{grid-template-columns:1fr}}
+
 @media(max-width:800px){.grid{grid-template-columns:repeat(2,1fr)}.events,.form{grid-template-columns:1fr}}@media(max-width:450px){.grid{grid-template-columns:1fr}.names{font-size:30px}}
 </style></head><body>
 <header><div class="orn">✦ ❦ ✦</div><div class="small">Zaman Weds Sadiya</div><div class="names">Our Wedding Planning Journey</div><p class="sub">24 October · Haldi &nbsp; | &nbsp; 25 October 2026 · Nikah & Valima</p></header>
@@ -30,6 +36,24 @@ main{max-width:1140px;margin:auto;padding:32px 18px 80px}.page{display:none}.pag
 <section id="vendors" class="page"><div class="bar-title"><h2>Wedding Vendors</h2><button class="primary" onclick="toggle('vendorForm')">+ Add Vendor</button></div><div id="vendorForm" class="form hidden"><input id="vc" placeholder="Category"><input id="vn" placeholder="Vendor name"><input id="vph" placeholder="Phone"><input id="va" type="number" placeholder="Amount ₹"><select id="vs"><option>Researching</option><option>Shortlisted</option><option>Booked</option></select><button class="primary" onclick="addVendor()">Save Vendor</button></div><div id="vendorTable"></div></section>
 
 <section id="updates" class="page"><div class="bar-title"><h2>Family Updates</h2><button class="primary" onclick="toggle('updateForm')">+ Post Update</button></div><div id="updateForm" class="form hidden"><input id="ut" placeholder="Update title"><input id="ub" placeholder="Posted by"><textarea id="ux" placeholder="Important message for family"></textarea><button class="primary" onclick="addUpdate()">Post Update</button></div><div id="updatesList"></div></section>
+
+<div id="budgetEditModal" class="modal">
+  <div class="modal-box">
+    <h3>Edit Budget</h3>
+    <div class="modal-grid">
+      <div><label>Item</label><input id="ebi" placeholder="Item"></div>
+      <div><label>Category</label><input id="ebc" placeholder="Category"></div>
+      <div><label>Planned Amount ₹</label><input id="ebp" type="number" placeholder="Planned"></div>
+      <div><label>Spent Amount ₹</label><input id="ebs" type="number" placeholder="Spent"></div>
+      <div><label>Status</label><select id="ebst"><option>Pending</option><option>Partly Paid</option><option>Paid</option></select></div>
+    </div>
+    <div class="modal-actions">
+      <button class="secondary" type="button" onclick="closeBudgetEdit()">Cancel</button>
+      <button class="primary" type="button" onclick="saveBudgetEdit()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
 </main><footer><div class="orn">✦ ❦ ✦</div><p>Zaman & Sadiya · With the blessings of our families</p></footer>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
@@ -93,33 +117,35 @@ function toggleInvited(i){
   save();
 }
 
+let editingBudgetIndex=null;
+
 function editBudget(i){
-  const x = D.budget[i];
+  const x=D.budget[i];
   if(!x) return;
+  editingBudgetIndex=i;
+  ebi.value=x.i||'';
+  ebc.value=x.c||'';
+  ebp.value=x.p||0;
+  ebs.value=x.s||0;
+  ebst.value=x.st||'Pending';
+  $('budgetEditModal').classList.add('show');
+}
 
-  // Each field can be changed. Cancelling one field keeps its old value
-  // and continues to the next field.
-  let value = window.prompt('Edit Item:', x.i || '');
-  if(value !== null && value.trim() !== '') x.i = value.trim();
+function closeBudgetEdit(){
+  editingBudgetIndex=null;
+  $('budgetEditModal').classList.remove('show');
+}
 
-  value = window.prompt('Edit Category:', x.c || '');
-  if(value !== null) x.c = value.trim();
-
-  value = window.prompt('Edit Planned Amount (₹):', String(x.p || 0));
-  if(value !== null && value.trim() !== ''){
-    const n = Number(value);
-    if(!Number.isNaN(n)) x.p = n;
-  }
-
-  value = window.prompt('Edit Spent Amount (₹):', String(x.s || 0));
-  if(value !== null && value.trim() !== ''){
-    const n = Number(value);
-    if(!Number.isNaN(n)) x.s = n;
-  }
-
-  value = window.prompt('Edit Payment Status:', x.st || 'Pending');
-  if(value !== null && value.trim() !== '') x.st = value.trim();
-
+function saveBudgetEdit(){
+  if(editingBudgetIndex===null || !D.budget[editingBudgetIndex]) return;
+  const x=D.budget[editingBudgetIndex];
+  if(!ebi.value.trim()) return alert('Please enter an item name.');
+  x.i=ebi.value.trim();
+  x.c=ebc.value.trim();
+  x.p=Number(ebp.value)||0;
+  x.s=Number(ebs.value)||0;
+  x.st=ebst.value;
+  closeBudgetEdit();
   save();
 }
 function addBudget(){
