@@ -9,6 +9,11 @@ main{max-width:1140px;margin:auto;padding:32px 18px 80px}.page{display:none}.pag
 .modal{display:none;position:fixed;inset:0;background:#0008;z-index:100;align-items:center;justify-content:center;padding:18px}
 .modal.show{display:flex}.modal-box{width:min(620px,100%);background:#fffdf9;border:1px solid var(--line);padding:24px;box-shadow:0 20px 60px #0004;position:relative}
 .modal-box h3{font:500 28px 'Playfair Display';color:var(--wine);margin:0 0 16px}.modal-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:18px}
+
+#currentValue.positive{color:#1f8a4c!important}
+#currentValue.negative{color:#c62828!important}
+#currentValue.zero{color:inherit!important}
+
 @media(max-width:600px){.modal-grid{grid-template-columns:1fr}}
 
 @media(max-width:800px){.grid{grid-template-columns:repeat(2,1fr)}.events,.form{grid-template-columns:1fr}}@media(max-width:450px){.grid{grid-template-columns:1fr}.names{font-size:30px}}
@@ -68,6 +73,24 @@ main{max-width:1140px;margin:auto;padding:32px 18px 80px}.page{display:none}.pag
 <div><label>Guest Name</label><input id="guestEditName"></div><div><label>Adults</label><input id="guestEditAdults" type="number"></div>
 <div><label>Invited</label><select id="guestEditInvited"><option>Yes</option><option>No</option></select></div>
 </div><div class="modal-actions"><button class="secondary" type="button" onclick="closeGuestEdit()">Cancel</button><button class="primary" type="button" onclick="saveGuestEdit()">Save Changes</button></div></div></div>
+
+
+<div id="vendorEditModal" class="modal">
+  <div class="modal-box">
+    <h3>Edit Vendor</h3>
+    <div class="modal-grid">
+      <div><label>Category</label><input id="vendorEditCategory"></div>
+      <div><label>Vendor Name</label><input id="vendorEditName"></div>
+      <div><label>Phone Number</label><input id="vendorEditPhone"></div>
+      <div><label>Amount (₹)</label><input id="vendorEditAmount" type="number"></div>
+      <div><label>Status</label><select id="vendorEditStatus"><option>Pending</option><option>Contacted</option><option>Confirmed</option><option>Paid</option><option>Cancelled</option></select></div>
+    </div>
+    <div class="modal-actions">
+      <button class="secondary" type="button" onclick="closeVendorEdit()">Cancel</button>
+      <button class="primary" type="button" onclick="saveVendorEdit()">Save Changes</button>
+    </div>
+  </div>
+</div>
 
 </main><footer><div class="orn">✦ ❦ ✦</div><p>Zaman & Sadiya · With the blessings of our families</p></footer>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -246,6 +269,33 @@ function saveGuestEdit(){
  x.n=n;x.a=Number(document.getElementById('guestEditAdults').value)||0;x.inv=document.getElementById('guestEditInvited').value;
  closeGuestEdit();save();
 }
+
+let editingVendorIndex=null;
+function editVendor(i){
+ const x=D.vendors[i]; if(!x)return; editingVendorIndex=i;
+ document.getElementById('vendorEditCategory').value=x.c||'';
+ document.getElementById('vendorEditName').value=x.n||'';
+ document.getElementById('vendorEditPhone').value=x.ph||'';
+ document.getElementById('vendorEditAmount').value=x.a||0;
+ document.getElementById('vendorEditStatus').value=x.s||'Pending';
+ document.getElementById('vendorEditModal').classList.add('show');
+}
+function closeVendorEdit(){
+ document.getElementById('vendorEditModal').classList.remove('show');
+ editingVendorIndex=null;
+}
+function saveVendorEdit(){
+ if(editingVendorIndex===null)return;
+ const x=D.vendors[editingVendorIndex]; if(!x)return;
+ const name=document.getElementById('vendorEditName').value.trim();
+ if(!name){alert('Please enter a vendor name.');return;}
+ x.c=document.getElementById('vendorEditCategory').value.trim();
+ x.n=name;
+ x.ph=document.getElementById('vendorEditPhone').value.trim();
+ x.a=Number(document.getElementById('vendorEditAmount').value)||0;
+ x.s=document.getElementById('vendorEditStatus').value;
+ closeVendorEdit(); save();
+}
 function tbl(h,r){return '<table><thead><tr>'+h.map(x=>'<th>'+x+'</th>').join('')+'</tr></thead><tbody>'+r.join('')+'</tbody></table>'}
 function render(){d1.textContent=days('2026-10-24');d2.textContent=days('2026-10-25');pending.textContent=D.tasks.filter(x=>x.s!=='Done').length;confirmed.textContent=D.guests.filter(x=>x.s==='Confirmed').length;let doneN=D.tasks.filter(x=>x.s==='Done').length,pct=D.tasks.length?Math.round(doneN/D.tasks.length*100):0;progress.style.width=pct+'%';progressText.textContent=D.tasks.length?`${doneN} of ${D.tasks.length} tasks completed (${pct}%)`:'Add tasks to begin tracking progress.';
 taskTable.innerHTML=tbl(['Task','Responsible','Event','Due','Priority','Finished','Remark','Actions'],D.tasks.map((x,i)=>`<tr>
@@ -258,7 +308,9 @@ guestTable.innerHTML=tbl(['Guest','Adults','Invited',''],D.guests.map((x,i)=>`<t
 let p=D.budget.reduce((a,x)=>a+x.p,0),s=D.budget.reduce((a,x)=>a+x.s,0),cv=p-s;
 plan.textContent='₹'+p.toLocaleString('en-IN');
 spent.textContent='₹'+s.toLocaleString('en-IN');
-currentValue.textContent='₹'+cv.toLocaleString('en-IN');budgetTable.innerHTML=tbl(
+currentValue.textContent='₹'+cv.toLocaleString('en-IN');
+currentValue.classList.remove('positive','negative','zero');
+currentValue.classList.add(cv>0?'positive':cv<0?'negative':'zero');budgetTable.innerHTML=tbl(
   ['Item','Category','Planned','Spent','Status','Actions'],
   D.budget.map((x,i)=>`<tr>
     <td>${x.i||''}</td>
@@ -272,7 +324,8 @@ currentValue.textContent='₹'+cv.toLocaleString('en-IN');budgetTable.innerHTML=
     </td>
   </tr>`)
 );
-vendorTable.innerHTML=tbl(['Category','Vendor','Phone','Amount','Status',''],D.vendors.map((x,i)=>`<tr><td>${x.c}</td><td>${x.n}</td><td>${x.ph}</td><td>₹${x.a}</td><td>${x.s}</td><td><button class="secondary" onclick="del('vendors',${i})">×</button></td></tr>`));
+vendorTable.innerHTML=tbl(['Category','Vendor','Phone','Amount','Status','Actions'],
+D.vendors.map((x,i)=>`<tr><td>${x.c||''}</td><td>${x.n||''}</td><td>${x.ph||''}</td><td>₹${x.a||0}</td><td>${x.s||''}</td><td><button type="button" class="secondary" onclick="editVendor(${i})">Edit</button> <button type="button" class="secondary" onclick="del('vendors',${i})">×</button></td></tr>`));
 updatesList.innerHTML=D.updates.length?D.updates.map((x,i)=>`<div class="card" style="margin:10px 0"><b style="font-size:23px;color:#6e2835">${x.t}</b><p>${x.x}</p><small>${x.b} · ${x.date}</small><br><br><button class="secondary" onclick="del('updates',${i})">Delete</button></div>`).join(''):'<div class="card">No family updates yet.</div>'}
 render();cloudLoad();
 </script></body></html>
